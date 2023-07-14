@@ -64,17 +64,13 @@ jobs:
           echo "MY_VAR: $content"
       - name: Upload Windows executable
         uses: actions/upload-release-asset@v1
-        shell: cmd
-        run: |
-          set /p CONTENT=<my-data.txt
-          echo "content: %CONTENT%"
         env:
           GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
           UPLOAD_URL: ${{ steps.build-on-windows.outputs.upload_url }}
           MY_VAR: ${{ env.MY_VAR }}
         with:
           #upload_url: ${{ needs.create-release.outputs.upload_url }}
-          upload_url: "%CONTENT%"
+          upload_url: %CONTENT%
           asset_path: ./dist/windows/hello.exe
           asset_name: hello-windows-${{ github.event.inputs.build_id }}.exe
           asset_content_type: application/octet-stream
