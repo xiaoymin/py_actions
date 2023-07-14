@@ -30,7 +30,7 @@ jobs:
           name: my-artifact
       - name: Read file content as variable
         id: read_file
-        run: CONTENT=$(cat my-data.txt)
+        run: echo "CONTENT=$(cat my-data.txt)" >> $GITHUB_ENV
       - name: print content
         id: print
-        run: echo "content:${{CONTENT}}"
+        run: echo "content:${{ env.CONTENT }}"
