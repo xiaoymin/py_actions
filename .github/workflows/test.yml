@@ -10,13 +10,15 @@ on:
 jobs:
   job1:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Set output value
-        id: set_output
-        run: echo "::set-output name=myOutput::Hello, World!"
+      - name: Set environment variable
+        run: echo "HELLO=World" >> $GITHUB_ENV
+
   job2:
     needs: job1
     runs-on: ubuntu-latest
+
     steps:
-      - name: Get input value
-        run: echo "Received input:${{ needs.job1.outputs.myOutput }}"
+      - name: Get environment variable
+        run: echo "Received input: ${{ env.HELLO }}"
