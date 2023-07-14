@@ -56,7 +56,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
         with:
           #upload_url: ${{ steps.create_release.outputs.upload_url }}
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create_release.outputs.uploadUrl }}
           asset_path: ./dist/macos/hello  # 替换为生成的可执行文件路径
           asset_name: hello-macos-${{ github.event.inputs.build_id }}  # 替换为生成的可执行文件名称
           asset_content_type: application/octet-stream
@@ -87,7 +87,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
         with:
           #upload_url: ${{ steps.create_release.outputs.upload_url }}
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create_release.outputs.uploadUrl }}
           asset_path: ./dist/linux/hello  # 替换为生成的可执行文件路径
           asset_name: hello-linux-${{ github.event.inputs.build_id }}  # 替换为生成的可执行文件名称
           asset_content_type: application/octet-stream
@@ -118,7 +118,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
         with:
           #upload_url: ${{ steps.create_release.outputs.upload_url }}
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create_release.outputs.uploadUrl }}
           asset_path: ./dist/windows/hello.exe  # 替换为生成的可执行文件路径
           asset_name: hello-windows-${{ github.event.inputs.build_id }}.exe  # 替换为生成的可执行文件名称
           asset_content_type: application/octet-stream 
