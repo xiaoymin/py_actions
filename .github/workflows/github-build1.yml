@@ -35,8 +35,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
         with:
-          tag_name: v1.0  # 替换为你的发布标签名称
-          release_name: Release 1.0  # 替换为你的发布名称
+          tag_name: |
+            ${{ github.event.inputs.build_id }}  # 替换为你的发布标签名称
+          release_name: |
+            Release ${{ github.event.inputs.build_id }}  # 替换为你的发布名称
           body: |
             first Release version on ${{ github.event.inputs.build_id }}.
 
