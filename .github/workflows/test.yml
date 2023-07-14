@@ -22,15 +22,17 @@ jobs:
 
   job2:
     needs: job1
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
           name: my-artifact
-      - name: Read file content as variable
-        id: read_file
-        run: echo "CONTENT=$(cat my-data.txt)" >> $GITHUB_ENV
+      - name: Load environment variables from file
+        shell: cmd
+        run: |
+          set /p CONTENT=<my-data.txt
+          echo %CONTENT%
       - name: print content
         id: print
         run: echo "content:${{ env.CONTENT }}"
