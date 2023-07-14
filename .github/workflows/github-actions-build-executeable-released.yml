@@ -27,12 +27,15 @@ jobs:
 
       - name: Set output value
         id: set_output
-        run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
+        run: echo "::set-output name=uploadUrl::${{ steps.create_release.outputs.upload_url }}"
   build-on-print:
     runs-on: ubuntu-latest
     needs: create-release
     steps:
      - run: echo "upload_url :${{ needs.create-release.outputs.upload_url }}"
+     - run: echo "upload_url1 :${{ needs.create-release.create_release.outputs.upload_url }}"
+     - run: echo "upload_url2 :${{ needs.create-release.outputs.uploadUrl }}"
+     - run: echo "upload_url3 :${{ needs.create-release.create_release.outputs.uploadUrl }}"
 
   build-on-macos:
     runs-on: macos-latest
