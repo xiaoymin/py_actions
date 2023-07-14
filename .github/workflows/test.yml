@@ -35,6 +35,8 @@ jobs:
           echo %CONTENT%
       - name: print content
         id: print
+        shell: cmd
         run: |
+          set /p CONTENT=<my-data.txt
           echo "content:${{ env.CONTENT }}"
           echo "content: %CONTENT%"
