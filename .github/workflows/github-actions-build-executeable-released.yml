@@ -9,9 +9,27 @@ on:
         type: string
 
 jobs:
+  # 构建最终版本
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
+        with:
+          tag_name: ${{ github.event.inputs.build_id }}  # 替换为你的发布标签名称
+          release_name: Release ${{ github.event.inputs.build_id }}  # 替换为你的发布名称
+          body: |
+            first Release version on ${{ github.event.inputs.build_id }}.
   # 构建mac
   build-on-macos:
     runs-on: macos-latest
+    needs: [create-release]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -29,10 +47,19 @@ jobs:
       - name: Build executable
         run: |
           pyinstaller --onefile --distpath ./dist/macos hello.py  
-
+      - name: Upload macos executable
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/macos/hello  # 替换为生成的可执行文件路径
+          asset_name: hello-macos-${{ github.event.inputs.build_id }}  # 替换为生成的可执行文件名称
+          asset_content_type: application/octet-stream
   # 构建linux
   build-on-linux:
     runs-on: ubuntu-latest
+    needs: [create-release]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -50,9 +77,19 @@ jobs:
       - name: Build executable
         run: |
           pyinstaller --onefile --distpath ./dist/linux hello.py  
+      - name: Upload linux executable
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/linux/hello  # 替换为生成的可执行文件路径
+          asset_name: hello-linux-${{ github.event.inputs.build_id }}  # 替换为生成的可执行文件名称
+          asset_content_type: application/octet-stream
 
   build-on-windows:
     runs-on: windows-latest
+    needs: [create-release]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -69,52 +106,18 @@ jobs:
 
       - name: Build executable
         run: |
-          pyinstaller --onefile --distpath ./dist/windows hello.py  
+          pyinstaller --onefile --distpath ./dist/windows hello.py 
+      - name: Upload Windows executable
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/windows/hello.exe  # 替换为生成的可执行文件路径
+          asset_name: hello-windows-${{ github.event.inputs.build_id }}.exe  # 替换为生成的可执行文件名称
+          asset_content_type: application/octet-stream 
 
-  # 构建最终版本
-  create-release:
-      needs: [build-on-macos, build-on-windows, build-on-linux]
-      runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
 
-        - name: Create release
-          id: create_release
-          uses: actions/create-release@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
-          with:
-            tag_name: ${{ github.event.inputs.build_id }}  # 替换为你的发布标签名称
-            release_name: Release ${{ github.event.inputs.build_id }}  # 替换为你的发布名称
-            body: |
-              first Release version on ${{ github.event.inputs.build_id }}.
 
-        - name: Upload Windows executable
-          uses: actions/upload-release-asset@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
-          with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }}
-            asset_path: ./dist/windows/hello.exe  # 替换为生成的可执行文件路径
-            asset_name: hello-windows-${{ github.event.inputs.build_id }}.exe  # 替换为生成的可执行文件名称
-            asset_content_type: application/octet-stream
-        - name: Upload macos executable
-          uses: actions/upload-release-asset@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
-          with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }}
-            asset_path: ./dist/macos/hello  # 替换为生成的可执行文件路径
-            asset_name: hello-macos-${{ github.event.inputs.build_id }}  # 替换为生成的可执行文件名称
-            asset_content_type: application/octet-stream
-        - name: Upload linux executable
-          uses: actions/upload-release-asset@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
-          with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }}
-            asset_path: ./dist/linux/hello  # 替换为生成的可执行文件路径
-            asset_name: hello-linux-${{ github.event.inputs.build_id }}  # 替换为生成的可执行文件名称
-            asset_content_type: application/octet-stream
+
