@@ -138,20 +138,23 @@ jobs:
         with:
           name: my-artifact
       - name: Load environment variables from file
-        shell: powershell
+        shell: cmd
         run: |
-          $content = Get-Content -Raw my-data.txt
-          [Environment]::SetEnvironmentVariable("CONTENT", $content, "Machine")
+          set /p CONTENT=<my-data.txt
+          echo %CONTENT%
       - name: print content
         id: print
+        shell: cmd
         run: echo "content:%CONTENT%"
       - name: Upload Windows executable
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
+          UPLOAD_URL: ${{ steps.build-on-windows.outputs.upload_url }}
+          MY_URL: "%CONTENT%"
         with:
           #upload_url: ${{ needs.create-release.outputs.upload_url }}
-          upload_url: "%CONTENT%"
+          upload_url: ${{ env.UPLOAD_URL }}
           asset_path: ./dist/windows/hello.exe
           asset_name: hello-windows-${{ github.event.inputs.build_id }}.exe
           asset_content_type: application/octet-stream
