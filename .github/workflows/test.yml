@@ -21,4 +21,4 @@ jobs:
 
     steps:
       - name: Get environment variable
-        run: echo "Received input: ${{ env.HELLO }}"
+        run: echo "Received input:${{ env.HELLO }}"
