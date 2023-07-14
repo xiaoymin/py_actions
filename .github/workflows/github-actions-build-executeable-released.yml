@@ -25,7 +25,7 @@ jobs:
           body: |
             First release version on ${{ github.event.inputs.build_id }}.
       - name: Write upload Url
-        run: echo ${{ steps.create_release.outputs.upload_url }} > my-data.txt
+        run: echo "${{ steps.create_release.outputs.upload_url }}" > my-data.txt
       - name: Upload data as artifact
         uses: actions/upload-artifact@v2
         with:
@@ -137,9 +137,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: my-artifact
-      - name: Read file content as variable
-        id: read_file
-        run: echo "CONTENT=$(cat my-data.txt)" >> $GITHUB_ENV
+      - name: Load environment variables from file
+        shell: powershell
+        run: |
+          $content = Get-Content -Raw my-data.txt
+          [Environment]::SetEnvironmentVariable("CONTENT", $content, "Machine")
       - name: print content
         id: print
         run: echo "content:${{ env.CONTENT }}"
