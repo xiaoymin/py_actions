@@ -151,10 +151,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
           UPLOAD_URL: ${{ steps.build-on-windows.outputs.upload_url }}
-          MY_URL: "%CONTENT%"
+          CONTENT: "%CONTENT%"
         with:
           #upload_url: ${{ needs.create-release.outputs.upload_url }}
-          upload_url: ${{ env.UPLOAD_URL }}
+          upload_url: "%CONTENT%"
           asset_path: ./dist/windows/hello.exe
           asset_name: hello-windows-${{ github.event.inputs.build_id }}.exe
           asset_content_type: application/octet-stream

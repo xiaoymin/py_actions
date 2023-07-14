@@ -1,0 +1,78 @@
+name: Build Python Executable-windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_id:
+        required: true
+        type: string
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
+        with:
+          tag_name: ${{ github.event.inputs.build_id }}
+          release_name: Release ${{ github.event.inputs.build_id }}
+          body: |
+            First release version on ${{ github.event.inputs.build_id }}.
+      - name: Write upload Url
+        run: echo "${{ steps.create_release.outputs.upload_url }}" > my-data.txt
+      - name: Upload data as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
+          path: my-data.txt
+  build-on-windows:
+    runs-on: windows-latest
+    needs: create-release
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11.0'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build Windows executable
+        run: |
+          pyinstaller --onefile --distpath ./dist/windows hello.py
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+      - name: Load environment variables from file
+        shell: cmd
+        run: |
+          set /p CONTENT=<my-data.txt
+          echo %CONTENT%
+      - name: print content
+        id: print
+        shell: cmd
+        run: echo "content:%CONTENT%"
+      - name: Upload Windows executable
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
+          UPLOAD_URL: ${{ steps.build-on-windows.outputs.upload_url }}
+          CONTENT: "%CONTENT%"
+        with:
+          #upload_url: ${{ needs.create-release.outputs.upload_url }}
+          upload_url: "%CONTENT%"
+          asset_path: ./dist/windows/hello.exe
+          asset_name: hello-windows-${{ github.event.inputs.build_id }}.exe
+          asset_content_type: application/octet-stream
