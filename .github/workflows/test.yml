@@ -14,6 +14,9 @@ jobs:
     steps:
       - name: Set environment variable
         run: echo "HELLO=World" >> $GITHUB_ENV
+      - name: Set output value
+        id: set_output
+        run: echo "::set-output name=myOutput::Hello, World!"
 
   job2:
     needs: job1
@@ -21,4 +24,6 @@ jobs:
 
     steps:
       - name: Get environment variable
-        run: echo "Received input:${{ env.HELLO }}"
+        run: echo Received input ${{ env.HELLO }}
+      - name: Get input value
+        run: echo "Received input ${{ needs.job1.outputs.myOutput }}"
