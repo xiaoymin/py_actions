@@ -71,27 +71,6 @@ jobs:
         run: |
           pyinstaller --onefile --distpath ./dist/windows hello.py  
 
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
-        with:
-          tag_name: ${{ github.event.inputs.build_id }}  # 替换为你的发布标签名称
-          release_name: Release ${{ github.event.inputs.build_id }}  # 替换为你的发布名称
-          body: |
-            first Release version on ${{ github.event.inputs.build_id }}.
-
-      - name: Upload executable
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/hello.exe  # 替换为生成的可执行文件路径
-          asset_name: hello-${{ github.event.inputs.build_id }}.exe  # 替换为生成的可执行文件名称
-          asset_content_type: application/octet-stream
-
   # 构建最终版本
   create-release:
       needs: [build-on-macos, build-on-windows, build-on-linux]
