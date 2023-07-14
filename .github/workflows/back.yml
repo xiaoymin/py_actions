@@ -55,22 +55,16 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: my-artifact
-      - name: Read file content and set environment variable
-        id: set_env_var
-        shell: powershell
-        run: |
-          $content = Get-Content -Raw my-data.txt
-          echo "MY_VAR=$content" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
-          echo "MY_VAR: $content"
+      - name: Load environment variables from file
+        shell: bash
+        run: echo "CONTENT=$(cat my-data.txt)" >> $GITHUB_ENV
       - name: Upload Windows executable
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
-          UPLOAD_URL: ${{ steps.build-on-windows.outputs.upload_url }}
-          MY_VAR: ${{ env.MY_VAR }}
         with:
           #upload_url: ${{ needs.create-release.outputs.upload_url }}
-          upload_url: '%CONTENT%'
+          upload_url: ${{ env.CONTENT }}
           asset_path: ./dist/windows/hello.exe
           asset_name: hello-windows-${{ github.event.inputs.build_id }}.exe
           asset_content_type: application/octet-stream
