@@ -29,14 +29,8 @@ jobs:
         with:
           name: my-artifact
       - name: Load environment variables from file
-        shell: cmd
-        run: |
-          set /p CONTENT=<my-data.txt
-          echo %CONTENT%
+        shell: bash
+        run: echo "CONTENT=$(cat my-data.txt)" >> $GITHUB_ENV
       - name: print content
         id: print
-        shell: cmd
-        run: |
-          set /p CONTENT=<my-data.txt
-          echo "content:${{ env.CONTENT }}"
-          echo "content: %CONTENT%"
+        run: echo "content:${{ env.CONTENT }}"
