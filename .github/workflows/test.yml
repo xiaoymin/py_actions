@@ -12,11 +12,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set environment variable
-        run: echo "HELLO=World" >> $GITHUB_ENV
-      - name: Set output value
-        id: set_output
-        run: echo "::set-output name=myOutput::Hello, World!"
+      - name: Set string data
+        run: echo "Hello, World!" > my-data.txt
+      - name: Upload data as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
+          path: my-data.txt
 
   job2:
     needs: job1
@@ -27,3 +29,13 @@ jobs:
         run: echo Received input ${{ env.HELLO }}
       - name: Get input value
         run: echo "Received input ${{ needs.job1.outputs.myOutput }}"
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+      - name: Read file content as variable
+        id: read_file
+        run: CONTENT=$(cat my-data.txt)
+      - name: print content
+        id: print
+        run: echo "content:${{CONTENT}}"
