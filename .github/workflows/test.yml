@@ -36,5 +36,5 @@ jobs:
       - name: print content
         id: print
         run: |
-        echo "content:${{ env.CONTENT }}"
-        echo "content: %CONTENT%"
+          echo "content:${{ env.CONTENT }}"
+          echo "content: %CONTENT%"
