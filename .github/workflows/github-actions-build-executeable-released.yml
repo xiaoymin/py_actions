@@ -24,19 +24,13 @@ jobs:
           release_name: Release ${{ github.event.inputs.build_id }}
           body: |
             First release version on ${{ github.event.inputs.build_id }}.
-
-      - name: Set output value
-        id: set_output
-        run: echo "::set-output name=uploadUrl::${{ steps.create_release.outputs.upload_url }}"
-  build-on-print:
-    runs-on: ubuntu-latest
-    needs: create-release
-    steps:
-     - run: echo "upload_url :${{ needs.create-release.outputs.upload_url }}"
-     - run: echo "upload_url1 :${{ needs.create-release.create_release.outputs.upload_url }}"
-     - run: echo "upload_url2 :${{ needs.create-release.outputs.uploadUrl }}"
-     - run: echo "upload_url3 :${{ needs.create-release.create_release.outputs.uploadUrl }}"
-
+      - name: Write upload Url
+        run: echo ${{ steps.create_release.outputs.upload_url }} > my-data.txt
+      - name: Upload data as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
+          path: my-data.txt
   build-on-macos:
     runs-on: macos-latest
     needs: create-release
@@ -57,13 +51,23 @@ jobs:
       - name: Build macOS executable
         run: |
           pyinstaller --onefile --distpath ./dist/macos hello.py
-
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+      - name: Read file content as variable
+        id: read_file
+        run: echo "CONTENT=$(cat my-data.txt)" >> $GITHUB_ENV
+      - name: print content
+        id: print
+        run: echo "content:${{ env.CONTENT }}"
       - name: Upload macOS executable
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          #upload_url: ${{ needs.create-release.outputs.upload_url }}
+          upload_url: ${{ env.CONTENT }}
           asset_path: ./dist/macos/hello
           asset_name: hello-macos-${{ github.event.inputs.build_id }}
           asset_content_type: application/octet-stream
@@ -88,13 +92,23 @@ jobs:
       - name: Build Linux executable
         run: |
           pyinstaller --onefile --distpath ./dist/linux hello.py
-
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+      - name: Read file content as variable
+        id: read_file
+        run: echo "CONTENT=$(cat my-data.txt)" >> $GITHUB_ENV
+      - name: print content
+        id: print
+        run: echo "content:${{ env.CONTENT }}"
       - name: Upload Linux executable
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          #upload_url: ${{ needs.create-release.outputs.upload_url }}
+          upload_url: ${{ env.CONTENT }}
           asset_path: ./dist/linux/hello
           asset_name: hello-linux-${{ github.event.inputs.build_id }}
           asset_content_type: application/octet-stream
@@ -119,13 +133,23 @@ jobs:
       - name: Build Windows executable
         run: |
           pyinstaller --onefile --distpath ./dist/windows hello.py
-
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+      - name: Read file content as variable
+        id: read_file
+        run: echo "CONTENT=$(cat my-data.txt)" >> $GITHUB_ENV
+      - name: print content
+        id: print
+        run: echo "content:${{ env.CONTENT }}"
       - name: Upload Windows executable
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          #upload_url: ${{ needs.create-release.outputs.upload_url }}
+          upload_url: ${{ env.CONTENT }}
           asset_path: ./dist/windows/hello.exe
           asset_name: hello-windows-${{ github.event.inputs.build_id }}.exe
           asset_content_type: application/octet-stream
