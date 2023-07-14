@@ -38,7 +38,7 @@ jobs:
           tag_name: v1.0  # 替换为你的发布标签名称
           release_name: Release 1.0  # 替换为你的发布名称
           body: |
-            first Release version on ${{build_id}}.
+            first Release version on ${{ github.event.inputs.build_id }}.
 
       - name: Upload executable
         uses: actions/upload-release-asset@v1
